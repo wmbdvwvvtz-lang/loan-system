@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>贷款分析系统 Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#eef2f7;
+}
+
+.container{
+    max-width:850px;
+    margin:auto;
+    padding:15px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    margin-bottom:15px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    border-radius:10px;
+    border:1px solid #ddd;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:linear-gradient(90deg,#4a90e2,#6fb1fc);
+    border:none;
+    color:white;
+    font-size:16px;
+    border-radius:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- 输入 -->
+<div class="card">
+
+<h2>🏦 贷款分析系统 Pro</h2>
+
+<form method="post">
+
+<input name="principal" placeholder="贷款金额（如1000000）">
+<input name="rate" placeholder="年利率（如2.6）">
+<input name="years" placeholder="年限（默认30）">
+
+<button type="submit">生成分析</button>
+
+</form>
+
+</div>
+
+<!-- 结果 -->
+{% if result %}
+
+<div class="card">
+
+<h3>📊 贷款结果</h3>
+<p>月供：{{ result.month }}</p >
+<p>总利息：{{ result.interest }}</p >
+<p>总还款：{{ result.total }}</p >
+
+</div>
+
+{% endif %}
+
+<!-- 多年对比 -->
+{% if compare %}
+
+<div class="card">
+
+<h3>📈 10 / 20 / 30 年对比</h3>
+
+<table>
+<tr>
+<th>年限</th>
+<th>月供</th>
+<th>利息</th>
+<th>总还款</th>
+</tr>
+
+{% for i in compare %}
+<tr>
+<td>{{ i.years }}</td>
+<td>{{ i.month }}</td>
+<td>{{ i.interest }}</td>
+<td>{{ i.total }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+{% endif %}
+
+<!-- 双曲线 -->
+{% if dual %}
+
+<div class="card">
+
+<h3>📉 等额本息 vs 等额本金</h3>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<script>
+
+const data = {{ dual|tojson }};
+
+new Chart(document.getElementById("chart"), {
+    type: "line",
+    data: {
+        labels: data.labels,
+        datasets: [
+            {
+                label: "等额本息",
+                data: data.equal_payment,
+                borderColor: "blue",
+                fill: false,
+                tension: 0.2
+            },
+            {
+                label: "等额本金",
+                data: data.equal_principal,
+                borderColor: "red",
+                fill: false,
+                tension: 0.2
+            }
+        ]
+    }
+});
+
+</script>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
